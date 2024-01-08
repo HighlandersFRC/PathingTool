@@ -1,0 +1,11 @@
+Kivy==2.1.0
+kivy-deps.angle==0.3.2
+kivy-deps.glew==0.3.1
+kivy-deps.sdl2==0.4.5
+Kivy-Garden==0.1.5
+numpy==1.23.4
+paramiko==2.11.0
+scp==0.14.4
+matplotlib==3.6.2
+pyinstaller==5.7.0
+PyAutoGUI==0.9.53
