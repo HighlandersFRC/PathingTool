@@ -44,6 +44,7 @@ class CommandEditor(Popup):
     def add_command(self, event):
         self.commands.append(Command(len(self.commands), self.delete_command, self.key_points))
         self.update_func([c.get_command() for c in self.commands])
+        self.update([c.get_command() for c in self.commands])
 
     def update(self, commands: list[dict]):
         self.commands = []
@@ -70,6 +71,7 @@ class CommandEditor(Popup):
     def delete_command(self, index: int, event):
         self.commands.pop(index)
         self.update_func([c.get_command() for c in self.commands])
+        self.update([c.get_command() for c in self.commands])
 
     def back_callback(self, event):
         self.update_func([c.get_command() for c in self.commands])
@@ -84,7 +86,7 @@ class Command(BoxLayout):
         self.trigger_type = "time"
         self.trigger = 0
 
-        self.types = ["shoot", "intake_down", "intake_up"]
+        self.types = ["shoot", "intake_down", "intake_up", "pause"]
         self.triggers = ["time", "position"]
 
         self.key_points = key_points
@@ -103,19 +105,25 @@ class Command(BoxLayout):
         self.shoot_layout = BoxLayout(orientation = "horizontal")
         self.intake_down_layout = BoxLayout(orientation = "horizontal")
         self.intake_up_layout = BoxLayout(orientation = "horizontal")
-
+        self.pause_layout = BoxLayout(orientation = "horizontal")
         self.type_menu.add_widget(self.shoot_layout)
         self.type_menu.add_widget(self.intake_down_layout)
         self.type_menu.add_widget(self.intake_up_layout)
+        self.type_menu.add_widget(self.pause_layout)
         
         self.shoot_button = ToggleButton(text = "Shoot", on_press = partial(self.select_type, 0), state = "down", color = (0, 0, 1, 1))
         self.shoot_layout.add_widget(self.shoot_button)
 
-        self.intake_down_button = ToggleButton(text = "Intake\nDown", on_press = partial(self.select_type, 1), color = (0, 1, 0, 1))
+        self.intake_down_button = ToggleButton(text = "Intake\nDown", on_press = partial(self.select_type, 1), color = (1, 0.5, 0, 1))
         self.intake_down_layout.add_widget(self.intake_down_button)
 
-        self.intake_up_button = ToggleButton(text = "Intake\nUp", on_press = partial(self.select_type, 2), state = "down", color = (1, 0, 0, 1))
+        self.intake_up_button = ToggleButton(text = "Intake\nUp", on_press = partial(self.select_type, 2), color = (0.5, 1, 0, 1))
         self.intake_up_layout.add_widget(self.intake_up_button)
+
+        self.pause_button = ToggleButton(text = "Pause", on_press = partial(self.select_type, 3), color = (1, 0, 0, 1))
+        self.pause_input = TextInput(hint_text = "Pause\nDuration", input_filter = "float", multiline = False, on_text_validate = self.set_pause_duration)
+        self.pause_layout.add_widget(self.pause_button)
+        self.pause_layout.add_widget(self.pause_input)
 
         self.time_button = ToggleButton(text = "Time\nTrigger", on_press = partial(self.select_trigger_type, 0), state = "down")
         self.position_button = ToggleButton(text = "Position\nTrigger", on_press = partial(self.select_trigger_type, 1))
@@ -163,11 +171,16 @@ class Command(BoxLayout):
             self.intake_up_button.state = "down"
             self.type = "intake_up"
             self.args = [1]
+        elif type == "pause":
+            self.pause_button.state = "down"
+            self.type = "pause"
+            self.args = [1]
 
     def deselect_all_types(self):
         self.shoot_button.state = "normal"
         self.intake_down_button.state = "normal"
         self.intake_up_button.state = "normal"
+        self.pause_button.state = "normal"
 
     def select_trigger_type(self, trigger_int: int, event):
         trigger_type = self.triggers[trigger_int]
@@ -188,6 +201,11 @@ class Command(BoxLayout):
     def deselect_all_triggers(self):
         self.time_button.state = "normal"
         self.position_button.state = "normal"
+
+    def set_pause_duration(self, event):
+        if self.type != "pause" or self.pause_input.text == "" or self.pause_input.text == ".":
+            return
+        self.args = [float(self.pause_input.text)]
 
     def update_index_selection(self, event):
         if self.index_trigger_input.text == "":
@@ -225,6 +243,9 @@ class Command(BoxLayout):
             self.intake_down_button.state = "down"
         elif self.type == "intake_up":
             self.intake_up_button.state = "down"
+        elif self.type == "pause":
+            self.pause_button.state = "down"
+            self.pause_input.text = str(self.args[0])
         if self.trigger_type == "time":
             self.time_button.state = "down"
             self.time_trigger_input.text = str(self.trigger)

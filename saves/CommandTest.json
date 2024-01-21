@@ -6,11 +6,41 @@
   "commands": [
     {
       "trigger_type": "time",
+      "trigger": 0.5,
+      "command": {
+        "type": "shoot",
+        "args": [
+          1
+        ]
+      }
+    },
+    {
+      "trigger_type": "time",
       "trigger": 1.5,
       "command": {
         "type": "intake_down",
         "args": [
           1
+        ]
+      }
+    },
+    {
+      "trigger_type": "time",
+      "trigger": 2.0,
+      "command": {
+        "type": "intake_up",
+        "args": [
+          1
+        ]
+      }
+    },
+    {
+      "trigger_type": "time",
+      "trigger": 2.5,
+      "command": {
+        "type": "pause",
+        "args": [
+          1.0
         ]
       }
     }

@@ -202,9 +202,11 @@ class Path(Image):
             if c["command"]["type"] == "shoot":
                 color = (0, 0, 0.9, 1)
             elif c["command"]["type"] == "intake_down":
-                color = (0, 0.9, 0, 1)
+                color = (1, 0.5, 0, 1)
             elif c["command"]["type"] == "intake_up":
-                color = (0.9, 0, 0, 1)
+                color = (0.5, 1, 0, 1)
+            elif c["command"]["type"] == "pause":
+                color = (1, 0, 0, 1)
             px = 0
             py = 0
             if c["trigger_type"] == "time":
