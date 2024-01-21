@@ -36,7 +36,7 @@ class CommandEditor(Popup):
         self.layout.add_widget(self.buttons_layout)
 
         #buttons for button layout
-        self.cancel_button = Button(text = "Back", on_press = self.dismiss)
+        self.cancel_button = Button(text = "Back", on_press = self.back_callback)
         self.add_command_button = Button(text = "Add Command", on_press = self.add_command)
         self.buttons_layout.add_widget(self.cancel_button)
         self.buttons_layout.add_widget(self.add_command_button)
@@ -71,16 +71,20 @@ class CommandEditor(Popup):
         self.commands.pop(index)
         self.update_func([c.get_command() for c in self.commands])
 
+    def back_callback(self, event):
+        self.update_func([c.get_command() for c in self.commands])
+        self.dismiss()
+
 class Command(BoxLayout):
     def __init__(self, index: int, delete_func, key_points: list[Point], **kwargs):
         super().__init__(orientation = "horizontal", spacing = 0, **kwargs)
         self.index = index
-        self.type = "angle_arm"
-        self.args = [180]
+        self.type = "shoot"
+        self.args = [1]
         self.trigger_type = "time"
         self.trigger = 0
 
-        self.types = ["angle_arm", "extend_arm", "intake", "placement"]
+        self.types = ["shoot", "intake_down", "intake_up"]
         self.triggers = ["time", "position"]
 
         self.key_points = key_points
@@ -96,24 +100,22 @@ class Command(BoxLayout):
         self.add_widget(self.trigger_menu)
         self.add_widget(self.extra_menu)
 
-        self.angle_layout = BoxLayout(orientation = "horizontal")
-        self.extend_layout = BoxLayout(orientation = "horizontal")
-        self.intake_button = ToggleButton(text = "Intake", on_press = partial(self.select_type, 2), color = (1, 0.73, 0, 1))
-        self.placement_button = ToggleButton(text = "Placement", on_press = partial(self.select_type, 3), color = (1, 0, 0, 1))
-        self.type_menu.add_widget(self.angle_layout)
-        self.type_menu.add_widget(self.extend_layout)
-        self.type_menu.add_widget(self.intake_button)
-        self.type_menu.add_widget(self.placement_button)
-        
-        self.angle_button = ToggleButton(text = "Angle\nArm", on_press = partial(self.select_type, 0), state = "down", color = (0, 0, 1, 1))
-        self.angle_input = TextInput(hint_text = "Angle", input_filter = "float", multiline = False, on_text_validate = self.set_angle_arg)
-        self.angle_layout.add_widget(self.angle_button)
-        self.angle_layout.add_widget(self.angle_input)
+        self.shoot_layout = BoxLayout(orientation = "horizontal")
+        self.intake_down_layout = BoxLayout(orientation = "horizontal")
+        self.intake_up_layout = BoxLayout(orientation = "horizontal")
 
-        self.extend_button = ToggleButton(text = "Extend\nArm", on_press = partial(self.select_type, 1), color = (0, 1, 0, 1))
-        self.extend_input = TextInput(hint_text = "Ext. Length", input_filter = "float", multiline = False, on_text_validate = self.set_extend_arg)
-        self.extend_layout.add_widget(self.extend_button)
-        self.extend_layout.add_widget(self.extend_input)
+        self.type_menu.add_widget(self.shoot_layout)
+        self.type_menu.add_widget(self.intake_down_layout)
+        self.type_menu.add_widget(self.intake_up_layout)
+        
+        self.shoot_button = ToggleButton(text = "Shoot", on_press = partial(self.select_type, 0), state = "down", color = (0, 0, 1, 1))
+        self.shoot_layout.add_widget(self.shoot_button)
+
+        self.intake_down_button = ToggleButton(text = "Intake\nDown", on_press = partial(self.select_type, 1), color = (0, 1, 0, 1))
+        self.intake_down_layout.add_widget(self.intake_down_button)
+
+        self.intake_up_button = ToggleButton(text = "Intake\nUp", on_press = partial(self.select_type, 2), state = "down", color = (1, 0, 0, 1))
+        self.intake_up_layout.add_widget(self.intake_up_button)
 
         self.time_button = ToggleButton(text = "Time\nTrigger", on_press = partial(self.select_trigger_type, 0), state = "down")
         self.position_button = ToggleButton(text = "Position\nTrigger", on_press = partial(self.select_trigger_type, 1))
@@ -149,29 +151,23 @@ class Command(BoxLayout):
     def select_type(self, type_int: int, event):
         type = self.types[type_int]
         self.deselect_all_types()
-        if type == "angle_arm":
-            self.angle_button.state = "down"
-            self.type = "angle_arm"
-            self.set_angle_arg(None)
-        elif type == "extend_arm":
-            self.extend_button.state = "down"
-            self.type = "extend_arm"
-            self.set_extend_arg(None)
-        elif type == "intake":
-            self.intake_button.state = "down"
-            self.type = "intake"
+        if type == "shoot":
+            self.shoot_button.state = "down"
+            self.type = "shoot"
             self.args = [1]
-        elif type == "placement":
-            self.placement_button.state = "down"
-            self.type = "placement"
+        elif type == "intake_down":
+            self.intake_down_button.state = "down"
+            self.type = "intake_down"
             self.args = [1]
-        
+        elif type == "intake_up":
+            self.intake_up_button.state = "down"
+            self.type = "intake_up"
+            self.args = [1]
 
     def deselect_all_types(self):
-        self.angle_button.state = "normal"
-        self.extend_button.state = "normal"
-        self.intake_button.state = "normal"
-        self.placement_button.state = "normal"
+        self.shoot_button.state = "normal"
+        self.intake_down_button.state = "normal"
+        self.intake_up_button.state = "normal"
 
     def select_trigger_type(self, trigger_int: int, event):
         trigger_type = self.triggers[trigger_int]
@@ -217,32 +213,18 @@ class Command(BoxLayout):
                 y = float(self.position_trigger_y_input.text)
                 self.trigger = [x, y]
 
-    def set_angle_arg(self, event):
-        if self.type == "extend_arm" or self.angle_input.text == "" or self.angle_input.text == ".":
-            return
-        self.args = [float(self.angle_input.text)]
-
-    def set_extend_arg(self, event):
-        if self.type == "angle_arm" or self.extend_input.text == "" or self.extend_input.text == ".":
-            return
-        self.args = [float(self.extend_input.text)]
-
     def delete(self, event):
         self.delete_func(self.index, event)
 
     def update_inputs(self):
         self.deselect_all_types()
         self.deselect_all_triggers()
-        if self.type == "angle_arm":
-            self.angle_button.state = "down"
-            self.angle_input.text = str(self.args[0])
-        elif self.type == "extend_arm":
-            self.extend_button.state = "down"
-            self.extend_input.text = str(self.args[0])
-        elif self.type == "intake":
-            self.intake_button.state = "down"
-        elif self.type == "placement":
-            self.placement_button.state = "down"
+        if self.type == "shoot":
+            self.shoot_button.state = "down"
+        elif self.type == "intake_down":
+            self.intake_down_button.state = "down"
+        elif self.type == "intake_up":
+            self.intake_up_button.state = "down"
         if self.trigger_type == "time":
             self.time_button.state = "down"
             self.time_trigger_input.text = str(self.trigger)
@@ -268,7 +250,5 @@ class Command(BoxLayout):
         self.trigger = cmd["trigger"]
         self.type = cmd["command"]["type"]
         self.args = cmd["command"]["args"]
-        self.set_angle_arg(None)
-        self.set_extend_arg(None)
         self.update_index_selection(None)
         self.update_inputs()

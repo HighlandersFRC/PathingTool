@@ -89,12 +89,13 @@ class PathTool(BoxLayout):
         self.update_widgets()
 
     #update main widgets
-    def update_widgets(self, update_editor = True, update_equations = True):
+    def update_widgets(self, update_editor = True, update_equations = True, loading_commands = False):
         #update indexes and times
         self.index_points()
         self.time_points()
         self.optimize_points()
-        self.commands = self.editor.get_commands()
+        if not loading_commands:
+            self.commands = self.editor.get_commands()
         #if multiple points update equations
         if len(self.key_points) > 1 and update_equations:
             self.spline_generator.generateSplineCurves([[p.time, p.x, p.y, p.angle, p.velocity_magnitude * math.cos(p.velocity_theta), p.velocity_magnitude * math.sin(p.velocity_theta), p.angular_velocity, 0.0, 0.0, 0.0] for p in self.key_points])
@@ -104,9 +105,10 @@ class PathTool(BoxLayout):
         self.points_menu.update(self.key_points, self.selected_point)
         #update selected point in widgets
         if update_editor:
+            if loading_commands:
+                self.editor.update_commands(self.commands)
             self.editor.update_selected_point(self.selected_point)
             self.editor.update_path_name(self.path_name)
-            self.editor.update_commands(self.commands)
             self.editor.update_command_key_points(self.key_points)
             if len(self.key_points) > 0:
                 self.editor.update_time(self.key_points[-1].time)
@@ -332,9 +334,9 @@ class PathTool(BoxLayout):
         self.key_points = path_data[0]
         self.sample_rate = path_data[1]
         self.path_name = path_data[2]
-        # self.commands = path_data[3]
+        self.commands = path_data[3]
         self.selected_point = None
-        self.update_widgets()
+        self.update_widgets(loading_commands = True)
         #update status
         if self.path_name == "":
             self.editor.update_status("[b]Load Failed[/b]", (1, 0.25, 0.25, 1))

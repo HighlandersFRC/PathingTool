@@ -102,7 +102,7 @@ def save_path(key_points: list[Point], commands: list, sampled_points: list, sam
         "path_name": file_name,
         "sample_rate": sample_rate
     }
-    # data["commands"] = commands
+    data["commands"] = commands
     data["key_points"] = [p.to_json() for p in key_points]
     data["sampled_points"] = [[sampled_points[i][0], sampled_points[i][1], sampled_points[i][2], sampled_points[i][3]] for i in range(len(sampled_points))]
     try:
@@ -123,7 +123,7 @@ def load_path(file_path: str):
             for p in data["key_points"]:
                 key_points.append(Point(p["index"], p["delta_time"], p["x"], p["y"], p["angle"], p["velocity_magnitude"], p["velocity_theta"], p["angular_velocity"]))
             print("Path loaded successfully")
-            return key_points, data["meta_data"]["sample_rate"], data["meta_data"]["path_name"], #data["commands"]
+            return key_points, data["meta_data"]["sample_rate"], data["meta_data"]["path_name"], data["commands"]
     except:
         print("Path was unable to be loaded")
         return [], 0.01, "", []

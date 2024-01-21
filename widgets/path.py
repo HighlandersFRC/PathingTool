@@ -198,15 +198,13 @@ class Path(Image):
 
         #draw command indicators
         for c in self.commands:
-            color = None
-            if c["command"]["type"] == "placement":
-                color = (1, 0, 0, 1)
-            elif c["command"]["type"] == "intake":
-                color = (1, 0.73, 0, 1)
-            elif c["command"]["type"] == "angle_arm":
-                color = (0, 0, 1, 1)
-            elif c["command"]["type"] == "extend_arm":
-                color = (0, 1, 0, 1)
+            color = (0, 0, 0, 1)
+            if c["command"]["type"] == "shoot":
+                color = (0, 0, 0.9, 1)
+            elif c["command"]["type"] == "intake_down":
+                color = (0, 0.9, 0, 1)
+            elif c["command"]["type"] == "intake_up":
+                color = (0.9, 0, 0, 1)
             px = 0
             py = 0
             if c["trigger_type"] == "time":
@@ -216,7 +214,7 @@ class Path(Image):
                 px = convert.meters_to_pixels_x(c["trigger"][0], self.size)
                 py = convert.meters_to_pixels_y(c["trigger"][1], self.size)
             self.command_group.add(Color(color[0], color[1], color[2]))
-            self.command_group.add(Ellipse(pos = (px - 5, py - 5), size = (10, 10)))
+            self.command_group.add(Line(points = [px + 4, py, px, py - 4, px - 4, py, px, py + 4], cap = "square", joint = "miter", width = 3, close = True))
         self.canvas.add(self.command_group)
 
         #update infomational text
