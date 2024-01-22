@@ -128,7 +128,7 @@ class Command(BoxLayout):
         self.trigger_menu.add_widget(self.index_trigger)
         self.trigger_menu.add_widget(self.halting_button)
 
-        self.time_trigger_input = TextInput(hint_text = "Time", input_filter = "float", multiline = False, on_text_validate = partial(self.set_trigger, 0))
+        self.time_trigger_input = TextInput(hint_text = "Time", input_filter = "float", multiline = False, on_text_validate = self.set_trigger)
         self.time_trigger_label = Label(text = "[b]Time[/b]", markup = True, outline_color = (1, 0, 0, 1))
         self.time_trigger.add_widget(self.time_trigger_label)
         self.time_trigger.add_widget(self.time_trigger_input)
