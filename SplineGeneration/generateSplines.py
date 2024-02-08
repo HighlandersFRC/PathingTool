@@ -93,6 +93,26 @@ class SplineGenerator:
             return (x ** 3 * ax + x ** 2 * vy ** 2 + x ** 2 * y * ay + y ** 2 * x * ax - 2 * x * y * vx * vy + y ** 2 * vx ** 2 + y ** 3 * ay) / ((x ** 2 + y ** 2) * math.sqrt(x ** 2 + y ** 2))
         except:
             return 0
+        
+    def sample_derivs(self, key_points: list, time: float):
+        index = 0
+        for i in range(len(key_points) - 1):
+            if time >= key_points[i].time and time <= key_points[i + 1].time:
+                index = i
+                break
+        xEquation = self.xEquations[index]
+        xVelEquation = self.xVelEquations[index]
+        xAccelEquation = self.xAccelEquations[index]
+        yEquation = self.yEquations[index]
+        yVelEquation = self.yVelEquations[index]
+        yAccelEquation = self.yAccelEquations[index]
+        x = float(np.polyval(xEquation, time))
+        y = float(np.polyval(yEquation, time))
+        vx = float(np.polyval(xVelEquation, time))
+        vy = float(np.polyval(yVelEquation, time))
+        ax = float(np.polyval(xAccelEquation, time))
+        ay = float(np.polyval(yAccelEquation, time))
+        return (vx, vy, ax, ay)
 
     def generateSplineCurves(self, points):
         overallSysEqArray = []

@@ -104,7 +104,7 @@ def save_path(key_points: list[Point], commands: list, sampled_points: list, sam
     }
     data["commands"] = commands
     data["key_points"] = [p.to_json() for p in key_points]
-    data["sampled_points"] = [[sampled_points[i][0], sampled_points[i][1], sampled_points[i][2], sampled_points[i][3]] for i in range(len(sampled_points))]
+    data["sampled_points"] = [[sampled_points[i][0], sampled_points[i][1], sampled_points[i][2], sampled_points[i][3], sampled_points[i][4], sampled_points[i][5], sampled_points[i][6], sampled_points[i][7]] for i in range(len(sampled_points))]
     try:
         out_file = open(f"{folder_path}\\{file_name}.json", "w")
         json.dump(data, out_file, indent = 2)

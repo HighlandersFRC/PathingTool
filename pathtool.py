@@ -253,11 +253,17 @@ class PathTool(BoxLayout):
             point = self.spline_generator.sample_pos(self.key_points, t)
             if times or colors:
                 point.insert(0, t)
+            derivs = self.spline_generator.sample_derivs(self.key_points, t)
+            point.append(derivs[0])
+            point.append(derivs[1])
+            point.append(derivs[2])
+            point.append(derivs[3])
             sampled_points.append(point)
             t += self.sample_rate
+        last_point = [0, 0, 0, 0, 0, 0, 0, 0]
         if colors:
             sampled_points = self.add_color_indicators(sampled_points)
-        last_point = [0, 0, 0, 0, (0, 0, 0)]
+            last_point = [0, 0, 0, 0, (0, 0, 0)]
         last_point[0] = sampled_points[-1][0] + self.end_time_pad
         last_point[1] = sampled_points[-1][1]
         last_point[2] = sampled_points[-1][2]
@@ -287,13 +293,18 @@ class PathTool(BoxLayout):
             lin_vel_list.append(lin_vel)
             lin_accel_list.append(lin_accel)
             if abs(lin_vel) > self.MAX_LINEAR_VEL and abs(lin_accel) > self.MAX_LINEAR_ACCEL:
-                p.append((1, 0, 1))
+                p.insert(4, (1, 0, 1))
             elif abs(lin_vel) > self.MAX_LINEAR_VEL:
-                p.append((1, 0, 0))
+                p.insert(4, (1, 0, 0))
             elif abs(lin_accel) > self.MAX_LINEAR_ACCEL:
-                p.append((0, 0, 1))
+                p.insert(4, (0, 0, 1))
             else:
-                p.append((0, 0, 0))
+                p.insert(4, (0, 0, 0))
+            # derivs = self.spline_generator.sample_derivs(self.key_points, p[0])
+            # p.append(derivs[0])
+            # p.append(derivs[1])
+            # p.append(derivs[2])
+            # p.append(derivs[3])
             # raw_info.append(self.spline_generator.sample_raw_linear_info(self.key_points, p[0]))
         # plt.plot([p[0] for p in points], lin_accel_list, color = (0, 1, 0, 1))
         # plt.plot([p[0] for p in points], lin_vel_list, color = (1, 0, 0, 1))
