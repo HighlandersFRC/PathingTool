@@ -31,7 +31,7 @@ class SaveLoad(Popup):
 
         #Create and add widgets
         self.file_chooser = FileChooserListView(path = "./saves")
-        self.text_box = TextInput(hint_text = "File name")
+        self.text_box = TextInput(hint_text = "File name", multiline = False)
         self.sample_rate_input = TextInput(hint_text = "Sample rate (sec)", text = "0.01", input_filter = "float", size_hint = (0.2, 1))
         self.load_button = Button(text = "Load", on_press = self.load)
         self.save_button = Button(text = "Save", on_press = self.save)
