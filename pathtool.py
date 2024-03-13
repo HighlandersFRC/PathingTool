@@ -37,8 +37,8 @@ class PathTool(BoxLayout):
         #name of current path
         self.path_name = ""
         #ip address of the roborio
-        self.rio_address = "10.44.99.2"
-        # self.rio_address = "172.22.11.2"
+        # self.rio_address = "10.44.99.2"
+        self.rio_address = "172.22.11.2"
 
         #physical limitations of the robot
         self.MAX_LINEAR_ACCEL = 6
